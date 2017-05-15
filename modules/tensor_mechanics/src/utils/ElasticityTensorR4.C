@@ -7,7 +7,7 @@
 #include "ElasticityTensorR4.h"
 
 // MOOSE includes
-#include "PermutationTensor.h"
+#include "RankThreeTensor.h"
 
 template <>
 void
@@ -68,7 +68,7 @@ ElasticityTensorR4::elasticJacobianwc(const unsigned int i,
   {
     for (unsigned int m = 0; m < N; ++m)
       for (unsigned int n = 0; n < N; ++n)
-        the_sum += _vals[ij1 + m * N + n] * PermutationTensor::eps(m, n, k) * grad_test(j);
+        the_sum += _vals[ij1 + m * N + n] * RankThreeTensor::leviCivita(m, n, k) * grad_test(j);
     ij1 += N * N;
   }
   return the_sum * phi;
@@ -86,7 +86,7 @@ ElasticityTensorR4::momentJacobian(const unsigned int i,
   for (unsigned int j = 0; j < N; ++j)
     for (unsigned int m = 0; m < N; ++m)
       for (unsigned int n = 0; n < N; ++n)
-        the_sum += PermutationTensor::eps(i, j, m) * (*this)(j, m, k, n) * grad_phi(n);
+        the_sum += RankThreeTensor::leviCivita(i, j, m) * (*this)(j, m, k, n) * grad_phi(n);
   return test * the_sum;
 }
 
@@ -103,7 +103,7 @@ ElasticityTensorR4::momentJacobianwc(const unsigned int i,
     for (unsigned int l = 0; l < N; ++l)
       for (unsigned int m = 0; m < N; ++m)
         for (unsigned int n = 0; n < N; ++n)
-          the_sum += PermutationTensor::eps(i, j, m) * (*this)(j, m, l, n) *
-                     PermutationTensor::eps(l, n, k);
+          the_sum += RankThreeTensor::leviCivita(i, j, m) * (*this)(j, m, l, n) *
+                     RankThreeTensor::leviCivita(l, n, k);
   return test * phi * the_sum;
 }

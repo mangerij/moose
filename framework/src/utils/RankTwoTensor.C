@@ -5,6 +5,7 @@
 /*             See LICENSE for full restrictions                */
 /****************************************************************/
 #include "RankTwoTensor.h"
+#include "RankThreeTensor.h"
 
 // MOOSE includes
 #include "MaterialProperty.h"
@@ -668,8 +669,8 @@ RankTwoTensor::d2thirdInvariant() const
           d2._vals[index++] = (i == j) * s(k, l) / 3.0 + (k == l) * s(i, j) / 3.0;
           // for (unsigned int a = 0; a < N; ++a)
           //  for (unsigned int b = 0; b < N; ++b)
-          //    d2(i, j, k, l) += 0.5*(PermutationTensor::eps(i, k, a)*PermutationTensor::eps(j, l,
-          //    b) + PermutationTensor::eps(i, l, a)*PermutationTensor::eps(j, k, b))*s(a, b);
+          //    d2(i, j, k, l) += 0.5*(RankThreeTensor::leviCivita(i, k, a)*RankThreeTensor::leviCivita(j, l,
+          //    b) + RankThreeTensor::leviCivita(i, l, a)*RankThreeTensor::leviCivita(j, k, b))*s(a, b);
         }
 
   // I'm not sure which is more readable: the above
@@ -1130,4 +1131,14 @@ RankTwoTensor::initialContraction(const RankFourTensor & b) const
     }
 
   return result;
+}
+
+Real
+RankTwoTensor::leviCivita(unsigned int i, unsigned int j)
+{
+  if (i == 0 && j == 1)
+    return 1.0;
+  else if (i == 1 && j == 0)
+    return -1.0;
+  return 0;
 }

@@ -5,6 +5,7 @@
 /*             See LICENSE for full restrictions                */
 /****************************************************************/
 #include "RankFourTensor.h"
+#include "RankThreeTensor.h"
 
 // MOOSE includes
 #include "RankTwoTensor.h"
@@ -13,7 +14,6 @@
 #include "MooseUtils.h"
 #include "MatrixTools.h"
 #include "MaterialProperty.h"
-#include "PermutationTensor.h"
 
 // libMesh includes
 #include "libmesh/utility.h"
@@ -715,7 +715,7 @@ RankFourTensor::fillGeneralIsotropicFromInputVector(const std::vector<Real> & in
                                 input[1] * (i == l) * (j == k);
           for (unsigned int m = 0; m < N; ++m)
             (*this)(i, j, k, l) +=
-                input[2] * PermutationTensor::eps(i, j, m) * PermutationTensor::eps(k, l, m);
+                input[2] * RankThreeTensor::leviCivita(i, j, m) * RankThreeTensor::leviCivita(k, l, m);
         }
 }
 
@@ -887,4 +887,18 @@ RankFourTensor::isIsotropic() const
         return false;
 
   return true;
+}
+
+Real
+RankFourTensor::leviCivita(unsigned int i, unsigned int j, unsigned int k, unsigned int l)
+{
+  if (i == 0 && j > 0 && k > 0 && l > 0)
+    return RankThreeTensor::leviCivita(j - 1, k - 1, l - 1);
+  else if (j == 0 && i > 0 && k > 0 && l > 0)
+    return -RankThreeTensor::leviCivita(i - 1, k - 1, l - 1);
+  else if (k == 0 && i > 0 && j > 0 && l > 0)
+    return RankThreeTensor::leviCivita(i - 1, j - 1, l - 1);
+  else if (l == 0 && i > 0 && j > 0 && k > 0)
+    return -RankThreeTensor::leviCivita(i - 1, j - 1, k - 1);
+  return 0;
 }
